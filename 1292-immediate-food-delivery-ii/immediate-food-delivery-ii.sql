@@ -1,16 +1,11 @@
-WITH customer_type AS (
-  SELECT 
-    *,
-    CASE WHEN rn = 1 THEN 'first_order' ELSE 'not' END AS order_type
-  FROM (
-    SELECT *,
-           ROW_NUMBER() OVER (PARTITION BY customer_id ORDER BY order_date) AS rn
-    FROM Delivery
-  ) AS ranked_orders
-)
-
 SELECT 
-  ROUND(COUNT(*) * 100.0 / (SELECT COUNT(DISTINCT customer_id) FROM Delivery), 2) 
-  AS immediate_percentage
-FROM customer_type
-WHERE order_type = 'first_order' AND customer_pref_delivery_date = order_date;
+  ROUND(
+    SUM(CASE WHEN customer_pref_delivery_date = order_date THEN 1 ELSE 0 END) 
+    / COUNT(*) * 100, 2
+  ) AS immediate_percentage
+FROM Delivery d
+WHERE (customer_id, order_date) IN (
+  SELECT customer_id, MIN(order_date)
+  FROM Delivery
+  GROUP BY customer_id
+);
