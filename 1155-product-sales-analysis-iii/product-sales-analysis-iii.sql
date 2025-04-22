@@ -5,7 +5,7 @@ FROM (
         year, 
         quantity, 
         price,
-        DENSE_RANK() OVER (PARTITION BY product_id ORDER BY year) AS rnk
+       RANK() OVER (PARTITION BY product_id ORDER BY year) AS rnk
     FROM Sales
 ) AS ranked_sales
 WHERE rnk = 1;
