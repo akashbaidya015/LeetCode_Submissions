@@ -1,0 +1,1 @@
+select E.reports_to as employee_id,F.name,count(*) as reports_count, round(avg(E.age)) as average_age  from Employees E  join Employees F on E.reports_to = F.employee_id group by E.reports_to,F.name order by F.employee_id
